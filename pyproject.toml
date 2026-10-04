@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "port-emissions-mcp"
+version = "0.1.0"
+description = "MCP server that lets Claude estimate at-berth CO2 of tankers and query Brazilian port statistics (ANTAQ)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Darliane Ribeiro Cunha" }]
+keywords = ["mcp", "claude", "maritime", "ports", "co2", "decarbonisation", "antaq", "brazil"]
+dependencies = [
+  "mcp>=2.2,<3",
+  "pandas>=1.5",
+  "maritime-co2 @ git+https://github.com/darlianecunha/maritimeco2",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+
+[project.scripts]
+port-emissions-mcp = "port_emissions_mcp.server:main"
+
+[project.urls]
+Homepage = "https://github.com/darlianecunha/port-emissions-mcp"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+port_emissions_mcp = ["example_data/*.csv", "example_data/*.md"]

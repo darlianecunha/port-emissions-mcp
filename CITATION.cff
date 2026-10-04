@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "port-emissions-mcp: an MCP server for at-berth CO2 and Brazilian port statistics"
+version: 0.1.0
+date-released: 2026-10-03
+license: MIT
+repository-code: "https://github.com/darlianecunha/port-emissions-mcp"
+authors:
+  - family-names: Cunha
+    given-names: Darliane Ribeiro
+    orcid: "https://orcid.org/0000-0003-2548-1237"

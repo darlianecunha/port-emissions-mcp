@@ -5,6 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org)
 [![MCP](https://img.shields.io/badge/Model_Context_Protocol-server-6E56CF)](https://modelcontextprotocol.io)
+[![Data DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23158267.svg)](https://doi.org/10.5281/zenodo.23158267)
 [![Built on maritime-co2](https://img.shields.io/badge/built_on-maritime--co2-2ea44f)](https://github.com/darlianecunha/maritimeco2)
 
 <!-- Add docs/gallery/demo.gif: a 30-60 s recording of a conversation in Claude Desktop -->
@@ -45,7 +46,7 @@ The server looks for the port tables in this order:
    ```bash
    port-emissions-mcp download
    ```
-   This fetches *Brazil Port Data: consolidated ANTAQ port statistics, 2010-2026* (doi:[10.5281/zenodo.XXXXXXX](https://doi.org/10.5281/zenodo.XXXXXXX), ODbL 1.0) into `~/.cache/port-emissions-mcp`.
+   This fetches *Brazil Port Data: consolidated ANTAQ port statistics, 2010-2026* (doi:[10.5281/zenodo.23158267](https://doi.org/10.5281/zenodo.23158267), ODbL 1.0) into `~/.cache/port-emissions-mcp`.
 3. **A small synthetic dataset** bundled in `src/port_emissions_mcp/example_data/` (three fictitious installations), so the tests run offline. Every answer based on it carries a warning that the numbers are invented.
 
 | File | Grain |
@@ -64,7 +65,7 @@ Requires Python 3.10+ and [uv](https://docs.astral.sh/uv/) (or pip).
 git clone https://github.com/darlianecunha/port-emissions-mcp
 cd port-emissions-mcp
 uv venv && uv pip install -e ".[test]"
-uv run pytest                      # 9 tests, offline, synthetic data
+uv run pytest                      # 10 tests, offline, synthetic data
 uv run port-emissions-mcp download # real data from Zenodo
 ```
 

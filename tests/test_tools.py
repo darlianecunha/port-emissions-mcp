@@ -112,3 +112,23 @@ def test_download_needs_record():
 
     with pytest.raises(SystemExit, match="No Zenodo record"):
         download.download("", data.CACHE_DIR)
+
+
+def test_download_from_zip_record(monkeypatch, tmp_path):
+    """GitHub-integration records hold one zip with the tables in a subfolder."""
+    import io
+    import zipfile
+
+    from port_emissions_mcp import download
+
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as z:
+        for f in data.EXAMPLE_DIR.glob("*.csv"):
+            z.write(f, f"user-repo-abc123/data/{f.name}")
+    payload = buf.getvalue()
+
+    monkeypatch.setattr(download, "file_links", lambda rec: {"repo-v1.zip": "http://x/zip"})
+    monkeypatch.setattr(download, "_get", lambda url: payload)
+    got = download.download("1", tmp_path / "cache")
+    assert sorted(got) == sorted(data.FILES.values())
+    assert (tmp_path / "cache" / "cargo_by_installation_2010_2026.csv").exists()

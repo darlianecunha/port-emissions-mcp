@@ -9,15 +9,18 @@ is not set.
 """
 from __future__ import annotations
 
+import io
 import json
 import os
 import sys
 import urllib.request
+import zipfile
 from pathlib import Path
 
 ZENODO_API = os.environ.get("ZENODO_API", "https://zenodo.org/api")
-# Set after the dataset is published on Zenodo (record number, not the DOI).
-DEFAULT_RECORD = os.environ.get("PORT_DATA_ZENODO_RECORD", "")
+# Concept record of "Brazil Port Data: consolidated ANTAQ port statistics"
+# (doi:10.5281/zenodo.23158267). It always resolves to the latest version.
+DEFAULT_RECORD = os.environ.get("PORT_DATA_ZENODO_RECORD", "23158267")
 
 
 def _get(url: str) -> bytes:
@@ -27,8 +30,11 @@ def _get(url: str) -> bytes:
 
 
 def file_links(record: str) -> dict[str, str]:
-    """Map file name -> download URL for a Zenodo record."""
-    meta = json.loads(_get(f"{ZENODO_API}/records/{record}"))
+    """Map file name -> download URL for the latest version of a Zenodo record."""
+    try:
+        meta = json.loads(_get(f"{ZENODO_API}/records/{record}/versions/latest"))
+    except Exception:
+        meta = json.loads(_get(f"{ZENODO_API}/records/{record}"))
     links = {}
     for f in meta.get("files", []):
         name = f.get("key") or f.get("filename")
@@ -47,12 +53,21 @@ def download(record: str, dest: Path) -> list[str]:
         )
     links = file_links(record)
     needed = list(FILES.values())
-    missing = [n for n in needed if n not in links]
-    if missing:
-        raise SystemExit(f"Record {record} does not contain: {missing}")
     dest.mkdir(parents=True, exist_ok=True)
-    for name in needed:
-        (dest / name).write_bytes(_get(links[name]))
+    if all(n in links for n in needed):  # files uploaded one by one
+        for name in needed:
+            (dest / name).write_bytes(_get(links[name]))
+    else:  # GitHub-integration records hold one zip of the repository
+        zips = [u for n, u in links.items() if n.endswith(".zip")]
+        if not zips:
+            raise SystemExit(f"Record {record} has neither the tables nor a zip.")
+        with zipfile.ZipFile(io.BytesIO(_get(zips[0]))) as z:
+            members = {Path(m).name: m for m in z.namelist() if not m.endswith("/")}
+            missing = [n for n in needed if n not in members]
+            if missing:
+                raise SystemExit(f"Record {record} does not contain: {missing}")
+            for name in needed:
+                (dest / name).write_bytes(z.read(members[name]))
     (dest / "SOURCE.txt").write_text(f"Zenodo record {record}\n", encoding="utf-8")
     return needed
 
